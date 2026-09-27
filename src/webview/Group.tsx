@@ -18,7 +18,7 @@ export function Group({
   onPin,
   onRename,
   onDelete,
-  onDeleteReady,
+  onDeleteAll,
   onReorder,
 }: {
   group: SessionGroup
@@ -37,7 +37,8 @@ export function Group({
   onPin: (id: string, pinned: boolean) => void
   onRename: (id: string, name: string) => void
   onDelete: (id: string) => void
-  onDeleteReady: (ids: string[]) => void
+  /** Delete every session in this group (the folder header's trash icon). */
+  onDeleteAll: (ids: string[]) => void
   /** New order (session ids) for this section's active list, after a drag. */
   onReorder: (ids: string[]) => void
 }) {
@@ -47,7 +48,12 @@ export function Group({
   const [dragOverPos, setDragOverPos] = useState<'before' | 'after' | null>(null)
 
   const active = group.sessions
-  const readyIds = active.filter((s) => s.status === 'ready' && !s.pinned).map((s) => s.id)
+  // Every row this group shows — the folder-level trash clears the whole group,
+  // not just its finished sessions. Pinned rows are lifted into the top-level
+  // "Pinned" section, so they are already absent here; the guard keeps that true
+  // if that ever changes. While a filter is active `group.sessions` is the match
+  // set, so this deletes exactly what's on screen.
+  const deletableIds = active.filter((s) => !s.pinned).map((s) => s.id)
   const hidden = active.length - COLLAPSED_LIMIT
   const visible = showAll ? active : active.slice(0, COLLAPSED_LIMIT)
 
@@ -137,15 +143,15 @@ export function Group({
                 onNewSession(group.path)
               }}
             />
-            {readyIds.length > 0 && (
+            {deletableIds.length > 0 && (
               <span
                 className='codicon codicon-trash text-sm text-vs-desc cursor-pointer rounded p-0.5 hover:text-vs-red hover:bg-vs-hover-bg'
-                title={`Delete ${readyIds.length} ready session${readyIds.length > 1 ? 's' : ''}`}
+                title={`Delete ${deletableIds.length} session${deletableIds.length > 1 ? 's' : ''} in this folder`}
                 role='button'
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  onDeleteReady(readyIds)
+                  onDeleteAll(deletableIds)
                 }}
               />
             )}
