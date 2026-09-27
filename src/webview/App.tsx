@@ -118,7 +118,7 @@ export function App() {
   const handlePin = (id: string, pinned: boolean) => vscode.postMessage({ type: 'pin', id, pinned })
   const handleRename = (id: string, name: string) => vscode.postMessage({ type: 'rename', id, name })
   const handleDelete = (id: string) => vscode.postMessage({ type: 'delete', id })
-  const handleDeleteReady = (ids: string[]) => vscode.postMessage({ type: 'deleteGroup', ids })
+  const handleDeleteAll = (ids: string[]) => vscode.postMessage({ type: 'deleteGroup', ids })
   const handleReorder = (ids: string[]) => vscode.postMessage({ type: 'reorder', ids })
 
   const handleToggle = (name: string, open: boolean) => {
@@ -253,7 +253,7 @@ export function App() {
                 onPin={handlePin}
                 onRename={handleRename}
                 onDelete={handleDelete}
-                onDeleteReady={handleDeleteReady}
+                onDeleteAll={handleDeleteAll}
                 onReorder={handleReorder}
               />
             )}
@@ -272,7 +272,7 @@ export function App() {
                 onPin={handlePin}
                 onRename={handleRename}
                 onDelete={handleDelete}
-                onDeleteReady={handleDeleteReady}
+                onDeleteAll={handleDeleteAll}
                 onReorder={handleReorder}
               />
             ))}
