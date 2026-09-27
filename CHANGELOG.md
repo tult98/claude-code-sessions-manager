@@ -2,6 +2,16 @@
 
 All notable changes to the "Hero Code" extension will be documented in this file.
 
+## [0.0.25] - 2026-09-27
+
+### Changed
+
+- **A folder's trash icon now deletes every session in that folder.** It used to appear only
+  when the folder had a Ready session, and it only removed those. It now shows whenever the
+  folder has any sessions and removes all of them after one confirmation, which warns if any
+  are still working. Pinned sessions are left alone. While a search or status filter is
+  active, only the matching rows are removed. Transcripts stay on disk.
+
 ## [0.0.24] - 2026-08-25
 
 ### Fixed
