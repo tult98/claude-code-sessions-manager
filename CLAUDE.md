@@ -14,7 +14,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-Hero Code is a VS Code extension that adds a **Sessions** sidebar for managing Claude Code
+Claude Code Sessions Manager (formerly Hero Code; extension id `tule.hero-code`) is a VS Code extension that adds a **Sessions** sidebar for managing Claude Code
 sessions across the open workspace folders — listing each session with its live status
 (Working / Waiting for input / Idle / Error) and letting you open/resume its terminal.
 

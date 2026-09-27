@@ -5,6 +5,10 @@
 # Contributor guidance for coding agents, not user documentation.
 CLAUDE.md
 media/claude.webp
+# README demo assets are loaded from GitHub; the recorder isn't shipped.
+media/demo/**
+media/screenshot.png
+scripts/**
 src/**
 # Nothing from node_modules ships: everything the extension needs is bundled
 # into dist/ by esbuild.

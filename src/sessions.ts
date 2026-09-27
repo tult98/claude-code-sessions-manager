@@ -12,7 +12,7 @@ import { encodeProjectPath, parseSessionFrom } from './transcript.js'
 interface LiveSession {
   /** The session id the process currently runs under (changes on `/clear`). */
   liveId: string
-  /** Claude's own status string from the registry, e.g. 'busy' | 'idle'. */
+  /** Claude's own status string from the registry: 'busy' | 'idle' | 'waiting'. */
   status?: string
   /** PID of the winning process (for the debug tooltip). */
   pid: number
@@ -221,8 +221,10 @@ function getLiveSessions(chain: ClearChain): Map<string, LiveSession> {
  * already retried past would otherwise pin the row to red while it works.
  *
  * Below that: no live process is `idle`; a transcript ending in an API error is
- * `error`; an outstanding tool call on a process that has gone quiet means the
- * turn is parked on a permission prompt and genuinely needs the user
+ * `error`; a registry status of `waiting` (newer Claude builds write it, with
+ * `waitingFor`, while parked on a permission prompt or question — before the
+ * pending tool call reaches the transcript), or an outstanding tool call on a
+ * process that has gone quiet, means the turn genuinely needs the user
  * (`waiting`); anything else live is `ready` — sitting at an empty prompt. Only
  * when the registry omits a status do we fall back to the transcript's last turn.
  */
@@ -236,7 +238,7 @@ function deriveStatus(live: LiveSession | undefined, parsed: ParsedSession): Sta
   if (!live) {
     return 'idle'
   }
-  if (parsed.pendingTool) {
+  if (live.status === 'waiting' || parsed.pendingTool) {
     return 'waiting'
   }
   if (live.status) {

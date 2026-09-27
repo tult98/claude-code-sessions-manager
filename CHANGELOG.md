@@ -1,6 +1,23 @@
 # Changelog
 
-All notable changes to the "Hero Code" extension will be documented in this file.
+All notable changes to the "Claude Code Sessions Manager" extension (formerly "Hero Code") will be documented in this file.
+
+## [0.0.26] - 2026-09-27
+
+### Changed
+
+- **Renamed to Claude Code Sessions Manager** (formerly Hero Code). The extension id,
+  settings (`heroCode.*`), pins, custom names and running sessions are unchanged, so
+  existing installs carry straight over. The macOS notification helper is regenerated
+  under the new name and the old one removed.
+- Rewrote the README with an up-to-date feature tour and demo recordings.
+
+### Fixed
+
+- **Sessions parked on a permission prompt show "Waiting for input" again.** Newer
+  Claude Code builds record the waiting state in their session registry before the
+  pending tool call reaches the transcript, so those rows showed "Ready" and no
+  needs-input notification fired. The registry's `waiting` status is now honoured.
 
 ## [0.0.25] - 2026-09-27
 

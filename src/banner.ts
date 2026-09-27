@@ -33,7 +33,10 @@ const run = promisify(execFile)
 const BUNDLE_ID = 'com.tule.hero-code.notifier'
 
 /** Shown as the app name in System Settings → Notifications. */
-const APP_NAME = 'Hero Code'
+const APP_NAME = 'Claude Code Sessions'
+
+/** Names the helper was generated under by earlier versions; removed on rebuild. */
+const LEGACY_APP_NAMES = ['Hero Code']
 
 /** Bump to force a rebuild of an already-generated helper after a script change. */
 const SCRIPT_REV = 2
@@ -189,6 +192,7 @@ async function build(): Promise<Helper | undefined> {
   // alongside the host: change one and the built helper is out of date.
   const stamp = [
     SCRIPT_REV,
+    APP_NAME,
     host.appPath,
     host.bundleId,
     target?.scheme ?? '',
@@ -206,6 +210,9 @@ async function build(): Promise<Helper | undefined> {
 
   const source = path.join(storage, 'notifier.applescript')
   await rm(appPath, { recursive: true, force: true })
+  for (const legacy of LEGACY_APP_NAMES) {
+    await rm(path.join(storage, `${legacy}.app`), { recursive: true, force: true })
+  }
   await writeFile(source, appleScript(host.bundleId, target), 'utf8')
   await run('/usr/bin/osacompile', ['-o', appPath, source], { timeout: 30_000 })
 
@@ -251,7 +258,7 @@ function promptForPermission(): void {
   const open = 'Open Notification Settings'
   void vscode.window
     .showInformationMessage(
-      `Hero Code posts notifications through a helper app so they carry the editor's icon. macOS starts new apps with notifications turned off — allow them for “${APP_NAME}” or banners won't appear.`,
+      `Claude Code Sessions Manager posts notifications through a helper app so they carry the editor's icon. macOS starts new apps with notifications turned off — allow them for “${APP_NAME}” or banners won't appear.`,
       open,
     )
     .then((choice) => {

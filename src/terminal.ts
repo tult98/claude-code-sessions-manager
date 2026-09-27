@@ -125,7 +125,7 @@ function ensureCloseListener(): void {
     if (code !== undefined && code !== 0 && Date.now() - launchedAt < LAUNCH_FAILURE_MS) {
       disableTmux()
       void vscode.window.showWarningMessage(
-        'Hero Code could not start its tmux session; falling back to one terminal per session.',
+        'Claude Code Sessions Manager could not start its tmux session; falling back to one terminal per session.',
       )
     }
   })
