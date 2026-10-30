@@ -2,6 +2,15 @@
 
 All notable changes to the "Claude Code Sessions Manager" extension (formerly "Hero Code") will be documented in this file.
 
+## [0.0.27] - 2026-10-30
+
+### Fixed
+
+- **Deleted sessions stay deleted after reopening VS Code.** A session that had been
+  `/clear`ed before its first conversation was saved could come back as one or more new
+  rows after a window reload, because only its original id was marked deleted. Deleting a
+  session now hides every conversation that came from it through `/clear`.
+
 ## [0.0.26] - 2026-09-27
 
 ### Changed
