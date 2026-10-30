@@ -349,8 +349,13 @@ function scanFolder(
       continue
     }
     // Only fold it away if the row that would absorb it actually exists here;
-    // otherwise the conversation would vanish from the sidebar entirely.
-    if (live.has(root) || fs.existsSync(path.join(dir, `${root}.jsonl`))) {
+    // otherwise the conversation would vanish from the sidebar entirely. A hidden
+    // root hides its whole lineage, even when its own row no longer exists.
+    if (
+      meta[root]?.hidden ||
+      live.has(root) ||
+      fs.existsSync(path.join(dir, `${root}.jsonl`))
+    ) {
       aliasedLiveIds.add(id)
     }
   }
