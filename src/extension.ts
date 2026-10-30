@@ -6,6 +6,7 @@ import { TransitionDetector } from './events.js'
 import { AttentionIndicator, Notifier } from './notify.js'
 import { initTerminals, mentionInSessionTerminal } from './terminal.js'
 import { SerialState } from './state.js'
+import { IdleSessionStopper } from './idle.js'
 
 /** Focuses the Claude Sessions sidebar — the way back from a native banner. */
 const REVEAL_SIDEBAR = 'workbench.view.extension.hero-code-sessions'
@@ -50,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     monitor,
+    new IdleSessionStopper(monitor),
     notifier,
     indicator,
     vscode.window.registerWebviewViewProvider(

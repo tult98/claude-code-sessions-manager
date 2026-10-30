@@ -92,6 +92,7 @@ Requires VS Code 1.90 or later.
 | `heroCode.notifications.ignoreAutoMode`  | `true`                | In `auto` permission mode, don't treat a long-running tool as needing input.        |
 | `heroCode.notifications.badge`           | `true`                | Badge on the activity-bar icon with the number of sessions waiting.                 |
 | `heroCode.notifications.statusBar`       | `true`                | Status-bar item with the number of sessions waiting.                                |
+| `heroCode.idleSessions.stopAfterMinutes` | `120`                 | Stop a session's `claude` after this many idle minutes to free memory; click to resume. `0` turns it off. |
 | `heroCode.debugMode`                     | `false`               | Show launch id / live id / PID in a tooltip on each row.                            |
 
 ## Development

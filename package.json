@@ -53,6 +53,12 @@
           "default": "",
           "description": "Absolute path to the `tmux` executable used to host terminal sessions. Leave empty to auto-detect from common install locations and your shell's PATH."
         },
+        "heroCode.idleSessions.stopAfterMinutes": {
+          "type": "number",
+          "default": 120,
+          "minimum": 0,
+          "markdownDescription": "Stop the `claude` process of a session that has sat idle at its prompt for this many minutes, freeing the memory it and its MCP servers hold (roughly 0.3 to 0.8 GB each). The conversation is kept: the row turns Idle, and clicking it resumes the session. Never stops a session that is working, waiting for your input, running a command (a dev server or watcher, say), shown in the terminal, or running in a terminal this extension didn't open. `0` turns this off."
+        },
         "heroCode.debugMode": {
           "type": "boolean",
           "default": false,
@@ -61,7 +67,7 @@
         "heroCode.notifications.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Notify you when a Claude session needs your input, finishes a turn, or errors. With this off and both indicators below off, the extension does no background session scanning at all."
+          "description": "Notify you when a Claude session needs your input, finishes a turn, or errors. With this off, both indicators below off, and `heroCode.idleSessions.stopAfterMinutes` at 0, the extension does no background session scanning at all."
         },
         "heroCode.notifications.onNeedsInput": {
           "type": "boolean",

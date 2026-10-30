@@ -394,6 +394,18 @@ export function hasSessionTerminal(sessionId: string): boolean {
 }
 
 /**
+ * Whether `sessionId` is the session the user has in front of them: the one the
+ * tmux terminal is attached to, or the active terminal when it's a legacy one.
+ */
+export function isSessionOnScreen(sessionId: string): boolean {
+  if (attached?.id === sessionId) {
+    return true
+  }
+  const term = legacy.get(sessionId)
+  return term !== undefined && term === vscode.window.activeTerminal
+}
+
+/**
  * Kill the `claude` process backing `sessionId` — the tmux session hosting it,
  * or its legacy terminal — so the RAM it holds is freed without the user
  * having to shell out to `tmux kill-session` themselves. The transcript on

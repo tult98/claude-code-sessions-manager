@@ -6,6 +6,7 @@ import type { ClaudeStateWatcher } from './watch.js'
 import { watchClaudeState } from './watch.js'
 import { hasSessionTerminal } from './terminal.js'
 import type { SerialState } from './state.js'
+import { idleStopMinutes } from './idle.js'
 
 /** `globalState` key under which per-session user metadata is stored. */
 const META_KEY = 'hero-code.sessionMeta'
@@ -120,7 +121,7 @@ export class SessionMonitor implements vscode.Disposable {
     this.subs.push(vscode.workspace.onDidChangeWorkspaceFolders(() => this.refresh()))
     this.subs.push(
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('heroCode.notifications')) {
+        if (e.affectsConfiguration('heroCode.notifications') || e.affectsConfiguration('heroCode.idleSessions')) {
           this.refresh()
         }
       }),
@@ -278,6 +279,8 @@ export class SessionMonitor implements vscode.Disposable {
     }
     const cfg = vscode.workspace.getConfiguration('heroCode.notifications')
     return (
+      // Stopping idle sessions reads the snapshot, so it needs the scan too.
+      idleStopMinutes() > 0 ||
       cfg.get<boolean>('enabled', true) ||
       cfg.get<boolean>('badge', true) ||
       cfg.get<boolean>('statusBar', true)
