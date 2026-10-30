@@ -1,0 +1,1 @@
+{ "name": "state-race-probe", "publisher": "verify", "version": "0.0.1", "engines": { "vscode": "^1.90.0" }, "main": "./out.js", "activationEvents": ["onStartupFinished"] }
