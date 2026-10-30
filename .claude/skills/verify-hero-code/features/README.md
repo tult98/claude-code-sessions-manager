@@ -40,6 +40,7 @@ Each feature file starts with an H1 and one paragraph of user-visible behavior. 
 - [Resume and live status](./resume-live-status.md) covers clicking an idle row to resume it, and the row following Ready, Working, Waiting and Idle. Proved end to end with a recorded clip.
 - [Filter and search](./filter-search.md) covers status chips and the search box. Handles checked in an unrecorded run.
 - [Organize sessions](./organize.md) covers pin, rename and delete. Proved invisibly by `scenarios/organize-persists.mjs`, including a relaunch, and by `scenarios/state-race.mjs` for the write race.
+- [Stop idle sessions](./idle-stop.md) covers `heroCode.idleSessions.stopAfterMinutes`. Proved invisibly by `scenarios/idle-stop.mjs`.
 - [New session](./new-session.md) covers the `+` on a folder group. Handles checked in an unrecorded run.
 
 Not yet mapped:

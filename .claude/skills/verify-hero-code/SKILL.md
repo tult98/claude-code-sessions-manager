@@ -73,6 +73,7 @@ Scenarios:
 
 - `scenarios/resume-live-status.mjs` is visible and recorded. It's the template for a clip.
 - `scenarios/organize-persists.mjs` is invisible. It does pin, rename and delete, then checks the result after a refresh, a new session, and a relaunch on the same profile. It's the template for an invisible scenario.
+- `scenarios/idle-stop.mjs` is invisible and takes about 3 minutes. It covers `heroCode.idleSessions.stopAfterMinutes`. Four live sessions are resumed: plain, running a command, waiting, and on screen. With the setting at 0, nothing stops. At 0.05 minutes, only the plain one stops, and a click resumes it. The stopper checks once a minute, so each phase waits a little over a minute.
 - `scenarios/state-race.mjs` is invisible. It's the regression for `globalState` writes clobbering each other (`src/state.ts`). It loads the probe extension in `probes/state-race/` next to this one. The probe writes twice at gaps from 0 to 50ms, through the raw memento and through `SerialState`. PASS means the raw memento still loses writes (so the probe still reaches the race) and `SerialState` loses none. Driving the UI can't hit that window reliably, but this can.
 
 Copy the closest scenario as the template for a new one. Keep it under `scenarios/` so its `../scripts/vh.mjs` import resolves. `playwright-core` resolves from the repo's `node_modules`, so run it from anywhere:
@@ -91,6 +92,7 @@ What `scripts/vh.mjs` exports:
 - `openSidebar(win)` returns `sb`, a frame locator for the webview's inner document. The webview is nested two iframes deep: `iframe.webview.ready` then `iframe#active-frame`.
 - `group(sb, folder)`, `rows(sb, folder)` (each row is an `li`), and `activeTerminal(win)`.
 - `recorder(p, app, win, scenario)` returns `{ title, step, type, pause, ptr, finish }`. See Record.
+- `stubHook(p, sessionId, { status, command })`, called before launch. It makes that session's stub start in `status` (for example `waiting`). With `command: true`, it also starts a child shaped exactly like Claude's Bash tool, a `/bin/sh -c source ~/.claude/shell-snapshots/...` that keeps running.
 - `cleanup(runId)`.
 
 Handles in the webview. These are all `title` attributes in `src/webview/*.tsx`:
@@ -167,9 +169,10 @@ Scenario scripts call `cleanup(runId)` in `finally`. It does the following, in o
 
 1. Stops the VS Code from `<root>/vscode.pid`, only if that process's command line contains this run's profile path.
 2. Kills the sandbox's own tmux server through `tmux-sandbox -L herocode kill-server`. That ends every stub `claude` it hosted.
-3. Deletes `<root>/sandbox/`.
+3. Stops any process whose command line still contains this run's sandbox path. Those can only have been started by this run, such as a stub's fake Bash-tool command, which outlives tmux.
+4. Deletes `<root>/sandbox/`.
 
-It never touches `<root>/evidence/`, never `pkill`s by name, and never touches another VS Code window or the developer's tmux server.
+It never touches `<root>/evidence/`, never `pkill`s by process name (only by this run's unique sandbox path), and never touches another VS Code window or the developer's tmux server.
 
 To clean up a crashed run by hand:
 

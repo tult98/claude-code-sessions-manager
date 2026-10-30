@@ -60,7 +60,16 @@ reg="$HOME/.claude/sessions/$$.json"
 mkdir -p "$HOME/.claude/sessions"
 write() { printf '{"pid":%s,"sessionId":"%s","status":"%s","updatedAt":%s000}' $$ "$id" "$1" "$(date +%s)" > "$reg"; }
 trap 'rm -f "$reg"; exit 0' EXIT INT TERM HUP
-write idle
+# Test hooks, set per session id by a scenario: start in another status, or with a
+# child shaped exactly like Claude's Bash tool (a shell sourcing its snapshot).
+hooks="$HOME/.stub-hooks"
+write "$(cat "$hooks/status-$id" 2>/dev/null || echo idle)"
+if [ -f "$hooks/command-$id" ]; then
+  mkdir -p "$HOME/.claude/shell-snapshots"
+  # \`source\` of a missing file is fatal in a POSIX sh, and real snapshots always exist.
+  : > "$HOME/.claude/shell-snapshots/snapshot-sh-stub.sh"
+  /bin/sh -c "source $HOME/.claude/shell-snapshots/snapshot-sh-stub.sh 2>/dev/null; while :; do sleep 1; done" &
+fi
 echo "stub-claude session=$id"
 echo "type: busy | idle | waiting | exit"
 while IFS= read -r line; do
@@ -70,6 +79,18 @@ while IFS= read -r line; do
   esac
 done
 `
+
+/** Make the stub for `sessionId` start in `status`, or with a running Bash-tool-shaped command. */
+export function stubHook(p, sessionId, { status, command } = {}) {
+  const dir = path.join(p.home, '.stub-hooks')
+  mkdirSync(dir, { recursive: true })
+  if (status) {
+    writeFileSync(path.join(dir, `status-${sessionId}`), status)
+  }
+  if (command) {
+    writeFileSync(path.join(dir, `command-${sessionId}`), '')
+  }
+}
 
 /**
  * Seed a sandbox. `projects` is `[{ name, sessions: [{ id, prompt, reply?, title?, error? }] }]`.
@@ -415,6 +436,13 @@ export function cleanup(runId) {
     } catch {
       // no sandbox tmux server was running
     }
+  }
+  // Anything still carrying this run's sandbox path in its command line was
+  // started by this run (a stub's fake Bash-tool command outlives tmux).
+  try {
+    execFileSync('pkill', ['-f', p.sandbox], { stdio: 'ignore' })
+  } catch {
+    // nothing left
   }
   rmSync(p.sandbox, { recursive: true, force: true })
 }
