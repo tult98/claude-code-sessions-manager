@@ -2,6 +2,24 @@
 
 All notable changes to the "Claude Code Sessions Manager" extension (formerly "Hero Code") will be documented in this file.
 
+## [0.0.29] - 2026-10-30
+
+### Added
+
+- **Idle sessions free their memory.** A session left at its prompt keeps its `claude`
+  process and its MCP servers running, roughly 0.3 to 0.8 GB each. After
+  `heroCode.idleSessions.stopAfterMinutes` (default 120) with no activity, the extension
+  stops that process. The conversation is kept: the row turns Idle, and clicking it
+  resumes the session. A session that is working, waiting for you, running a command,
+  shown in the terminal, or in a terminal the extension didn't open is never stopped.
+  Set the option to `0` to turn this off.
+
+### Fixed
+
+- **Long turns stay "Working".** A session working for more than five minutes, through a
+  long build or test run say, used to show Ready in the sidebar while it was still busy.
+  It now shows Working until the turn actually ends.
+
 ## [0.0.28] - 2026-10-30
 
 ### Fixed

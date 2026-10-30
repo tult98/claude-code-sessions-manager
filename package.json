@@ -2,7 +2,7 @@
   "name": "hero-code",
   "displayName": "Claude Code Sessions Manager",
   "description": "See every Claude Code session at a glance: live Working / Waiting / Idle status, instant switching in one terminal, and a ping when a session needs you.",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "publisher": "tule",
   "icon": "media/icon.png",
   "license": "MIT",
