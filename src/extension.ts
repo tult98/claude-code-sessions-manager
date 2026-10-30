@@ -5,6 +5,7 @@ import { SessionMonitor } from './monitor.js'
 import { TransitionDetector } from './events.js'
 import { AttentionIndicator, Notifier } from './notify.js'
 import { initTerminals, mentionInSessionTerminal } from './terminal.js'
+import { SerialState } from './state.js'
 
 /** Focuses the Claude Sessions sidebar — the way back from a native banner. */
 const REVEAL_SIDEBAR = 'workbench.view.extension.hero-code-sessions'
@@ -16,14 +17,17 @@ export function activate(context: vscode.ExtensionContext) {
   // single terminal switch between sessions.
   initTerminals(context)
 
+  // Every `globalState` write goes through this one queue; see `SerialState`.
+  const state = new SerialState(context.globalState)
+
   // Points the native-banner helper at the storage it is generated into. Must
   // run before the first notification can fire.
-  initBanners(context)
+  initBanners(context, state)
 
   // The always-on session scan. It deliberately does not belong to the sidebar:
   // everything below only works because state keeps being derived while no view
   // is open, which is exactly when a notification is worth sending.
-  const monitor = new SessionMonitor(context.globalState)
+  const monitor = new SessionMonitor(state)
 
   const provider = new SessionsViewProvider(context.extensionUri, monitor)
 

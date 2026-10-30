@@ -5,6 +5,7 @@ import { getSessionGroups, NEW_SESSION_TITLE } from './sessions.js'
 import type { ClaudeStateWatcher } from './watch.js'
 import { watchClaudeState } from './watch.js'
 import { hasSessionTerminal } from './terminal.js'
+import type { SerialState } from './state.js'
 
 /** `globalState` key under which per-session user metadata is stored. */
 const META_KEY = 'hero-code.sessionMeta'
@@ -112,7 +113,7 @@ export class SessionMonitor implements vscode.Disposable {
    */
   private readonly pending = new Map<string, string>()
 
-  constructor(private readonly memento: vscode.Memento) {
+  constructor(private readonly memento: SerialState) {
     // No visibility guard on any of these: the whole point is to keep deriving
     // state while nothing is on screen.
     this.watcher = watchClaudeState(() => this.onWatchEvent())

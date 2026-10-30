@@ -2,6 +2,15 @@
 
 All notable changes to the "Claude Code Sessions Manager" extension (formerly "Hero Code") will be documented in this file.
 
+## [0.0.28] - 2026-10-30
+
+### Fixed
+
+- **Deleted, pinned and renamed sessions no longer revert.** VS Code could overwrite a
+  change to the sidebar with an older copy when two saves landed a few milliseconds
+  apart, so a deleted session could reappear, or a pin or a custom name could be lost.
+  Saves now happen one at a time, so each one is kept.
+
 ## [0.0.27] - 2026-10-30
 
 ### Fixed

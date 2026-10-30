@@ -3,6 +3,7 @@ import { execFile } from 'child_process'
 import { copyFile, mkdir, readFile, rm, writeFile } from 'fs/promises'
 import * as path from 'path'
 import { promisify } from 'util'
+import type { SerialState } from './state.js'
 
 const run = promisify(execFile)
 
@@ -52,15 +53,15 @@ type Helper = { appPath: string; payloadDir: string }
 type DeepLinkTarget = { file: string; scheme: string; extensionId: string }
 
 let storageDir: string | undefined
-let globalState: vscode.Memento | undefined
+let globalState: SerialState | undefined
 let deepLink: { scheme: string; extensionId: string } | undefined
 let helper: Promise<Helper | undefined> | undefined
 let seq = 0
 
 /** Wires up the storage the helper is generated into. Call once, from `activate`. */
-export function initBanners(context: vscode.ExtensionContext): void {
+export function initBanners(context: vscode.ExtensionContext, state: SerialState): void {
   storageDir = context.globalStorageUri.fsPath
-  globalState = context.globalState
+  globalState = state
   // Captured rather than hardcoded: the scheme is `vscode-insiders` on Insiders
   // and `vscodium` on VSCodium, and a deep link on the wrong scheme silently
   // opens nothing.
@@ -251,7 +252,7 @@ async function build(): Promise<Helper | undefined> {
  * notifications simply stopped working.
  */
 function promptForPermission(): void {
-  if (globalState?.get<string>(PROMPTED_KEY) === BUNDLE_ID) {
+  if (globalState?.get<string | undefined>(PROMPTED_KEY, undefined) === BUNDLE_ID) {
     return
   }
   void globalState?.update(PROMPTED_KEY, BUNDLE_ID)
