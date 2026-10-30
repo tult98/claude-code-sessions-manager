@@ -73,11 +73,13 @@ export interface SessionItem extends ParsedSession {
   status: Status
   running: boolean
   /**
-   * `statusUpdatedAt` of the live process backing this row. This — not `mtime`
-   * — is the freshness signal for status: a session inside a long tool call
-   * keeps heartbeating the registry while writing nothing to the transcript.
+   * `statusUpdatedAt` of the live process backing this row. Claude stamps it
+   * only when a registry field changes, not on a heartbeat, so it stays put
+   * for the whole of a long turn.
    */
   liveUpdatedAt?: number
+  /** Claude's raw registry status for the live process ('busy', 'idle', ...). */
+  liveStatus?: string
   /**
    * The session id the process currently runs under, when it differs from the
    * display `id` after `/clear`. The row keeps the stable launch `id` for

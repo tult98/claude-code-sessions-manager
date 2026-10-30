@@ -30,14 +30,12 @@ const CHAIN_KEY = 'hero-code.clearChain'
 const MAX_CHAIN_ENTRIES = 5000
 
 /**
- * Safety net for a "working" row whose live signal has gone stale — a latched
- * status rather than real activity (e.g. a registry entry stuck on 'busy').
- * Downgrade it to `ready` past this window.
- *
- * Freshness is measured against the *registry* heartbeat, not the transcript:
- * a session inside a long build or test run writes nothing to its transcript
- * for many minutes while remaining genuinely busy, and keying off transcript
- * mtime flipped exactly those rows to "waiting for input" while they worked.
+ * Safety net for a "working" row inferred from the transcript (a registry with
+ * no status, from older Claude builds): a trailing `tool_use` can be latched
+ * there after the turn has really ended. Downgrade it to `ready` past this
+ * window. A live registry 'busy' is exempt: Claude only stamps the registry
+ * when a field changes, so a long turn holds 'busy' with an unchanging
+ * timestamp while it works.
  */
 const STALE_WORKING_MS = 5 * 60_000
 
@@ -366,17 +364,18 @@ export class SessionMonitor implements vscode.Disposable {
       group.sessions.unshift(placeholder)
     }
 
-    // A row still marked "working" long after its last heartbeat is showing a
-    // latched status rather than real activity. Prefer the registry heartbeat,
-    // which keeps ticking through a long tool call; fall back to the transcript
-    // only for rows with no live process behind them. Only ever downgrades
-    // working → ready; placeholders carry a fresh mtime so are never caught here.
+    // Only ever downgrades working → ready; placeholders carry a fresh mtime so
+    // are never caught here.
     const now = Date.now()
     const staleDowngraded = new Set<string>()
     for (const group of groups) {
       for (const session of group.sessions) {
         const fresh = session.liveUpdatedAt ?? session.mtime
-        if (session.status === 'working' && now - fresh > STALE_WORKING_MS) {
+        if (
+          session.status === 'working' &&
+          session.liveStatus !== 'busy' &&
+          now - fresh > STALE_WORKING_MS
+        ) {
           session.status = 'ready'
           staleDowngraded.add(session.id)
         }

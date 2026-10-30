@@ -225,8 +225,9 @@ function getLiveSessions(chain: ClearChain): Map<string, LiveSession> {
  * `waitingFor`, while parked on a permission prompt or question — before the
  * pending tool call reaches the transcript), or an outstanding tool call on a
  * process that has gone quiet, means the turn genuinely needs the user
- * (`waiting`); anything else live is `ready` — sitting at an empty prompt. Only
- * when the registry omits a status do we fall back to the transcript's last turn.
+ * (`waiting`); anything else live (`idle`, or `shell` while a background shell
+ * runs) is `ready` — sitting at an empty prompt. Only when the registry omits a
+ * status do we fall back to the transcript's last turn.
  */
 function deriveStatus(live: LiveSession | undefined, parsed: ParsedSession): Status {
   if (live?.status === 'busy') {
@@ -392,6 +393,7 @@ function scanFolder(
       createdAt: liveCached.birthtime,
       running: true,
       liveUpdatedAt: info.updatedAt,
+      liveStatus: info.status,
       status: deriveStatus(info, liveCached.data),
       ...liveCached.data,
       // A just-`/clear`ed conversation has written nothing but the `/clear`
@@ -465,6 +467,7 @@ function scanFolder(
       createdAt: cached.birthtime,
       running: !!info,
       liveUpdatedAt: info?.updatedAt,
+      liveStatus: info?.status,
       status: deriveStatus(info, data),
       ...data,
       title: data.title ?? NEW_SESSION_TITLE,
