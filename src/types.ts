@@ -9,6 +9,11 @@ export type Status = 'working' | 'waiting' | 'ready' | 'error' | 'idle'
 /** Fields derived purely from the transcript (no live-process knowledge). */
 export interface ParsedSession {
   /**
+   * Written only by headless `claude -p` runs (hooks, scripts, reviewers) — never
+   * a conversation the user holds, so it gets no row.
+   */
+  headless?: boolean
+  /**
    * Undefined when the transcript has produced no usable label yet — a session
    * whose first prompt hasn't flushed, or a bare `/clear` stub. Callers decide
    * what to show (or whether to show a row at all); `SessionItem` narrows this
@@ -207,4 +212,6 @@ export interface RawEntry {
   durationMs?: number
   /** Mode recorded by a `permission-mode` entry. */
   permissionMode?: string
+  /** 'cli' for the interactive terminal, 'sdk-cli' for headless `claude -p` runs. */
+  entrypoint?: string
 }

@@ -112,6 +112,10 @@ export interface ParseState {
   summary?: string
   /** Latest `permission-mode` entry — 'default' | 'auto' | 'plan' | 'acceptEdits'. */
   permissionMode?: string
+  /** Some entry was written by an interactive client (`entrypoint` other than 'sdk-cli'). */
+  sawInteractive: boolean
+  /** Some entry was written by a headless run (`entrypoint` 'sdk-cli', i.e. `claude -p`). */
+  sawHeadless: boolean
   /** Bytes of the file consumed so far — where the next read resumes. */
   offset: number
   /**
@@ -123,7 +127,15 @@ export interface ParseState {
 }
 
 function newParseState(): ParseState {
-  return { errored: false, pending: new Map(), turnCount: 0, offset: 0, tail: Buffer.alloc(0) }
+  return {
+    errored: false,
+    pending: new Map(),
+    turnCount: 0,
+    sawInteractive: false,
+    sawHeadless: false,
+    offset: 0,
+    tail: Buffer.alloc(0),
+  }
 }
 
 /** Fold one transcript entry into the running state. */
@@ -131,6 +143,14 @@ function apply(state: ParseState, entry: RawEntry): void {
   // Outside the switch: system/attachment entries carry it too.
   if (typeof entry.gitBranch === 'string' && entry.gitBranch) {
     state.gitBranch = entry.gitBranch
+  }
+
+  if (typeof entry.entrypoint === 'string' && entry.entrypoint) {
+    if (entry.entrypoint === 'sdk-cli') {
+      state.sawHeadless = true
+    } else {
+      state.sawInteractive = true
+    }
   }
 
   switch (entry.type) {
@@ -290,6 +310,9 @@ function snapshot(state: ParseState): ParsedSession {
     turnCount: state.turnCount,
     summary: state.summary,
     permissionMode: state.permissionMode,
+    // Only headless-and-never-interactive: a session a person later resumed in
+    // the terminal carries both entrypoints and is theirs.
+    headless: state.sawHeadless && !state.sawInteractive,
   }
 }
 

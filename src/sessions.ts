@@ -420,6 +420,12 @@ function scanFolder(
       continue
     }
 
+    // A headless `claude -p` run (a hook's reviewer, a script) is not a session
+    // the user can sensibly resume, and a hook can spawn dozens an hour.
+    if (cached.data.headless) {
+      continue
+    }
+
     const info = live.get(id)
     let data = cached.data
     let mtime = cached.mtime

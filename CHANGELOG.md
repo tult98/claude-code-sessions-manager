@@ -2,6 +2,15 @@
 
 All notable changes to the "Claude Code Sessions Manager" extension (formerly "Hero Code") will be documented in this file.
 
+## [0.0.30] - 2026-11-12
+
+### Fixed
+
+- **Headless runs no longer show up as sessions.** Hooks and scripts that call `claude -p`
+  (a security-review hook, say) leave a transcript for every run, and each one appeared
+  in the sidebar as an Idle row titled with its prompt. They are now left out. A session
+  you resumed in the terminal after a headless start still shows.
+
 ## [0.0.29] - 2026-10-30
 
 ### Added
